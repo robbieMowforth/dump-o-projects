@@ -1,0 +1,42 @@
+// © picachuate
+
+//@version=4
+study("Bands&RSI", overlay=true)
+rsiHigh = input(70, minval=50, title="RSI Overbought")
+rsiLow = input(30, minval=0, title="RSI Underbought")
+rsiDay = input(14, minval=0, title="RSI Day Average")
+smaDay = input(14, minval=0, title="Bands Day Average")
+
+myrsi = rsi(close, rsiDay)
+myma = sma(close, smaDay)
+
+//calculates standard devation for given sma
+pstdev(myma, smaDay) =>
+    mean = sum(myma, smaDay) / smaDay
+    summation = 0.0
+    for i=0 to smaDay-1
+        sampleMinusMean = nz(myma[i]) - mean
+        summation := summation + (sampleMinusMean * sampleMinusMean)
+    return = sqrt(summation / smaDay)
+
+//make the error bands
+mymaHigh = myma + 2*(pstdev(myma, smaDay))
+mymaLow = myma - 2*pstdev(myma, smaDay)
+
+//colours the candles for buy & sell, buy is purple and Oragne is sell
+mycond = myrsi > rsiHigh and hl2-mymaHigh > 20
+mycond2 = myrsi < rsiLow and mymaLow - hlc3 > 20
+
+is_newbar(res, sess) => change(time(res, sess)) != 0
+IsNewDay = is_newbar('3M','0000-0000')
+
+
+barcolor(mycond? color.orange: na)
+barcolor(mycond2? color.purple: na)
+
+// confidence label
+confidence = mycond? label.new(bar_index, high, style=label.style_none, text=tostring(hl2-mymaHigh , '0.#')) : (mycond2? label.new(bar_index, high, style=label.style_none, text=tostring(mymaLow - hlc3 , '0.#')): na)
+
+plot(mymaHigh, color=color.red)
+plot(myma, color=color.yellow)
+plot(mymaLow, color=color.red)
