@@ -31,7 +31,7 @@ require 'C:\xampp\htdocs\projectSP\includes\dbFuncs.php';
 $loop = Factory::create();
 
 $discord = new Discord([
-    'token' => 'ODc1ODEzODE3ODI3ODY0NTc3.YRa_Lg.epDMypx9EZg05c0ZIX9hkJkisi8',
+    'token' => '',
     'loop' => $loop,
 ]);
 
